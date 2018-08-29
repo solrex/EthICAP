@@ -25,7 +25,7 @@ import java.math.BigInteger;
  */
 public class EthICAP {
     private static String ICAP_XE_PREFIX = "XE";
-    private static String IBAN_SCHEME = "iban://";
+    private static String IBAN_SCHEME = "iban:";
     private static String IBAN_MOD = "97";
 
     /**
@@ -35,7 +35,7 @@ public class EthICAP {
      * @return ICAP iban address
      * @example
      * input:  0x730aea2b39aa2cf6b24829b3d39dc9a1f9297b88
-     * return: iban://XE42DFRZLRUTFTFY4EVINAHYF7TQ6MACYH4
+     * return: iban:XE42DFRZLRUTFTFY4EVINAHYF7TQ6MACYH4
      */
     public static String buildICAP(String ethAddress) {
         if (!ethAddress.startsWith("0x") || ethAddress.length() != 42) {
@@ -59,14 +59,14 @@ public class EthICAP {
      * @param icapAddress ICAP iban address
      * @return ethereum address
      * @example
-     * input:  iban://XE42DFRZLRUTFTFY4EVINAHYF7TQ6MACYH4
+     * input:  iban:XE42DFRZLRUTFTFY4EVINAHYF7TQ6MACYH4
      * return: 0x730aea2b39aa2cf6b24829b3d39dc9a1f9297b88
      */
     public static String decodeICAP(String icapAddress) {
         if (!isValid(icapAddress)) {
             throw new IllegalArgumentException("Invalid icap address.");
         }
-        BigInteger ethInt = new BigInteger(icapAddress.substring(11), 36);
+        BigInteger ethInt = new BigInteger(icapAddress.substring(9), 36);
         String base16Addr = ethInt.toString(16).toLowerCase();
         return "0x" + base16Addr;
     }
@@ -78,14 +78,14 @@ public class EthICAP {
      * @return true if valid; false if invalid
      */
     public static boolean isValid(String icapAddress) {
-        if (!icapAddress.startsWith("iban://XE") || icapAddress.length() != 42) {
+        if (!icapAddress.startsWith("iban:XE") || icapAddress.length() != 40) {
             return false;
         }
         String base10Str = "";
-        for (Character c:icapAddress.substring(11).toCharArray()) {
+        for (Character c:icapAddress.substring(9).toCharArray()) {
             base10Str += new BigInteger(c.toString(), 36);
         }
-        for (Character c:icapAddress.substring(7, 11).toCharArray()) {
+        for (Character c:icapAddress.substring(5, 9).toCharArray()) {
             base10Str += new BigInteger(c.toString(), 36);
         }
         Integer checkSum = (new BigInteger(base10Str)).mod(new BigInteger(IBAN_MOD)).intValue();
